@@ -13,10 +13,14 @@ app.use(bodyParser.json({
 app.post('/', (req, res) => {
     var inputFeature = req.body;
     try {
+		console.log(inputFeature);
         let numberOfClusters = 8;
         if (inputFeature.properties != null && inputFeature.properties["numberOfClusters"] != null && typeof inputFeature.properties["numberOfClusters"] == 'number') {
             numberOfClusters = inputFeature.properties["numberOfClusters"];
         }
+		if(numberOfClusters < 2){
+			console.log("numberOfClusters < 2");
+		}
         var polygonBbox = turf.bbox(inputFeature);
         var points = turf.randomPoint(1000, {
             bbox: polygonBbox
