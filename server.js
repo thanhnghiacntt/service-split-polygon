@@ -16,7 +16,6 @@ app.use(bodyParser.json({
 app.post('/', (req, res) => {
     var inputFeature = req.body;
     try {
-		console.log(inputFeature);
         let numberOfClusters = 8;
         if (inputFeature.properties != null && inputFeature.properties["numberOfClusters"] != null && typeof inputFeature.properties["numberOfClusters"] == 'number') {
             numberOfClusters = inputFeature.properties["numberOfClusters"];
@@ -44,7 +43,7 @@ app.post('/', (req, res) => {
             clusterGroups[feature.properties.cluster].push(feature);
         });
 
-        centroids = [];
+        var centroids = [];
         Object.keys(clusterGroups).forEach((i) => {
             const features = clusterGroups[i];
             const centroid = turf.centroid({
@@ -71,9 +70,11 @@ app.post('/', (req, res) => {
             e.properties = inputFeature.properties;
             geojson.features.push(e)
         });
+        console.log("Response Ok");
         res.json(geojson);
     } catch (e) {
-        console.log(inputFeature);
+        console.error("Parser bị lỗi");
+        console.error(e);
         res.json(null);
     }
 });
