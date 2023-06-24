@@ -15,7 +15,11 @@ function createListFeature(inputFeature){
         console.log("numberOfClusters < 2");
     }
     var polygonBbox = turf.bbox(inputFeature);
-    var points = turf.randomPoint(1000, {
+    var random = 1000;
+    if(numberOfClusters > random){
+        random = numberOfClusters * 10;
+    }
+    var points = turf.randomPoint(random, {
         bbox: polygonBbox
     });
     points.features = points.features.filter((feature) => {

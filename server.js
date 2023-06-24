@@ -14,20 +14,26 @@ app.use(bodyParser.json({
     limit: '50mb'
 }));
 
-app.post('/', (req, res) => {
+app.post('/', (req, res) => {    
     var geojson = req.body;
-    var features = geojson.features;
-    var rs = {
-        "type": "FeatureCollection",
-        "features": []
-    };
-    features.forEach(f =>{
-        var list = convertFeature(f);
-        list.forEach(v => {
-            rs.features.push(v);
+    try{
+        var features = geojson.features;
+        var rs = {
+            "type": "FeatureCollection",
+            "features": []
+        };
+        features.forEach(f =>{
+            var list = convertFeature(f);
+            list.forEach(v => {
+                rs.features.push(v);
+            });
         });
-    });
-    res.json(rs);
+        res.json(rs)
+    }catch (e) {
+        console.error(e);
+        console.error(JSON.stringify(geojson));
+        res.json(null);
+    };
 });
 app.post('/feature', (req, res) => {
     var inputFeature = req.body;
@@ -44,8 +50,8 @@ app.post('/feature', (req, res) => {
         console.log("Response Ok");
         res.json(geojson);
     } catch (e) {
-        console.error("Parser bị lỗi");
         console.error(e);
+        console.error(JSON.stringify(inputFeature));
         res.json(null);
     }
 });
