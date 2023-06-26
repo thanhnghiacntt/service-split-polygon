@@ -4,8 +4,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const turf = require('@turf/turf');
 const app = express();
-var polylabel = require('./polylabel');
-var convertFeature = require("./process");
+const polylabel = require('./polylabel');
+const convertFeature = require("./process");
+const log = require('./log');
+const fs = require('fs');
 app.use(bodyParser.urlencoded({
     extended: true
 }));
@@ -13,6 +15,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json({
     limit: '50mb'
 }));
+
 
 app.post('/', (req, res) => {    
     var geojson = req.body;
@@ -30,8 +33,9 @@ app.post('/', (req, res) => {
         });
         res.json(rs)
     }catch (e) {
+        log.info(e);
+        log.info(JSON.stringify(geojson));
         console.error(e);
-        console.error(JSON.stringify(geojson));
         res.json(null);
     };
 });
@@ -50,8 +54,9 @@ app.post('/feature', (req, res) => {
         console.log("Response Ok");
         res.json(geojson);
     } catch (e) {
+        log.info(e);
+        log.info(JSON.stringify(geojson));
         console.error(e);
-        console.error(JSON.stringify(inputFeature));
         res.json(null);
     }
 });
