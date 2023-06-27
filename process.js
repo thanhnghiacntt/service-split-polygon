@@ -7,6 +7,63 @@ module.exports.default = createListFeature;
 
 
 function createListFeature(inputFeature){
+    if(inputFeature.geometry.type == "MultiPolygon"){
+        var list = [];
+        var temp = splitMultiPolygonToFeatures(inputFeature);
+        temp.forEach(f => {
+            var v = processPolygon(f);
+            v.forEach(x => {
+                list.push(x);
+            });
+        });
+        return list;
+    }
+    else if(inputFeature.geometry.type == "Polygon"){
+        return processPolygon(inputFeature);
+    }
+}
+
+function length(polygon){
+    var length = 0;
+    polygon.forEach(x => {
+        x.forEach(r => {
+            length += r.length;
+        })
+    });
+    return length;
+}
+
+function splitMultiPolygonToFeatures(inputFeature){
+    if(inputFeature.geometry.type == "MultiPolygon"){
+        var list = [];
+        var max = 0;
+        inputFeature.geometry.coordinates.forEach(e => {
+            var x = length(e);
+            if(x > max){
+                max = x;
+            }
+        });
+        inputFeature.geometry.coordinates.forEach(e => {
+            var l = length(e);
+            var p = JSON.parse(JSON.stringify(inputFeature.properties));
+            if(l != max){
+                p["numberOfClusters"] = null;
+            }
+            var newFeature = {
+                "type": "Feature",
+                "properties": p,
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": e
+                }
+            };
+            list.push(newFeature);
+        });
+        return list;
+    }
+}
+
+function processPolygon(inputFeature){
     let numberOfClusters = 8;
     if (inputFeature.properties != null && inputFeature.properties["numberOfClusters"] != null && typeof inputFeature.properties["numberOfClusters"] == 'number') {
         numberOfClusters = inputFeature.properties["numberOfClusters"];

@@ -32,9 +32,9 @@ app.post('/', (req, res) => {
             });
         });
         res.json(rs)
-    }catch (e) {
-        log.info(e);
-        log.info(JSON.stringify(geojson));
+    } catch (e) {
+        log(e);
+        log(JSON.stringify(geojson));
         console.error(e);
         res.json(null);
     };
@@ -54,8 +54,8 @@ app.post('/feature', (req, res) => {
         console.log("Response Ok");
         res.json(geojson);
     } catch (e) {
-        log.info(e);
-        log.info(JSON.stringify(geojson));
+        log(e);
+        log(JSON.stringify(geojson));
         console.error(e);
         res.json(null);
     }
