@@ -1,22 +1,30 @@
 'use strict';
 
 const express = require('express');
-const bodyParser = require('body-parser');
-const turf = require('@turf/turf');
 const app = express();
+const bodyParser = require('body-parser');
 const polylabel = require('./polylabel');
 const convertFeature = require("./process");
 const log = require('./log');
-const fs = require('fs');
+const port = 8888;
+
+/**
+ * Sử dụng encode
+ */
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-// parse application/json
+
+/**
+ * Sử dụng parser json tối đa là 50MB
+ */
 app.use(bodyParser.json({
     limit: '50mb'
 }));
 
-
+/**
+ * Chia polygon hoặc multipolygon thành các vùng nhỏ một cách tự động
+ */
 app.post('/', (req, res) => {    
     var geojson = req.body;
     try{
@@ -39,6 +47,47 @@ app.post('/', (req, res) => {
         res.json(null);
     };
 });
+
+/**
+ * Split multipolygon sang từng polygon
+ */
+app.post('/split', (req, res) => {    
+    var geojson = req.body;
+    try{
+        var features = geojson.features;
+        var rs = {
+            "type": "FeatureCollection",
+            "features": []
+        };
+        features.forEach(f =>{
+            if(f.geometry.type == "MultiPolygon"){
+                f.geometry.coordinates.forEach(e => {
+                    var feature = {
+                        "type": "Feature",
+                        "properties": f.properties,
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": e
+                        }
+                    }
+                    rs.features.push(feature);
+                });
+            }else{
+                rs.features.push(f);
+            }
+        });
+        res.json(rs)
+    } catch (e) {
+        log(e);
+        log(JSON.stringify(geojson));
+        console.error(e);
+        res.json(null);
+    };
+});
+
+/**
+ * Chia feature chưa polygon thành những vùng nhỏ
+ */
 app.post('/feature', (req, res) => {
     var inputFeature = req.body;
     try {
@@ -60,6 +109,10 @@ app.post('/feature', (req, res) => {
         res.json(null);
     }
 });
+
+/**
+ * Tìm điểm ở giữa polygon hoặc multipolygon
+ */
 app.post('/center', (req, res) => {
     var inputFeature = req.body;
     try {
@@ -87,4 +140,7 @@ app.post('/center', (req, res) => {
     }
 });
 
-app.listen(process.env.PORT || 8888, () => console.log(`App listening on port ${process.env.PORT || 8888}!`))
+/**
+ * App lắng nghe port từ môi trường, nếu không thì sẽ mặt định port 8888
+ */
+app.listen(process.env.PORT || port, () => console.log(`App listening on port ${process.env.PORT || port}!`))

@@ -5,7 +5,11 @@ const turf = require('@turf/turf');
 module.exports = createListFeature;
 module.exports.default = createListFeature;
 
-
+/**
+ * Tạo list các feature và split
+ * @param {Feature} inputFeature 
+ * @returns 
+ */
 function createListFeature(inputFeature){
     if(inputFeature.geometry.type == "MultiPolygon"){
         var list = [];
@@ -23,6 +27,11 @@ function createListFeature(inputFeature){
     }
 }
 
+/**
+ * Tìm chiều dài của polygon
+ * @param {Polygon} polygon 
+ * @returns number
+ */
 function length(polygon){
     var length = 0;
     polygon.forEach(x => {
@@ -33,6 +42,11 @@ function length(polygon){
     return length;
 }
 
+/**
+ * Split multi polygon ra những features
+ * @param {Feature} inputFeature 
+ * @returns 
+ */
 function splitMultiPolygonToFeatures(inputFeature){
     if(inputFeature.geometry.type == "MultiPolygon"){
         var list = [];
@@ -63,6 +77,11 @@ function splitMultiPolygonToFeatures(inputFeature){
     }
 }
 
+/**
+ * Xử lý từ feature một
+ * @param {Feature} inputFeature 
+ * @returns 
+ */
 function processPolygon(inputFeature){
     let numberOfClusters = 8;
     if (inputFeature.properties != null && inputFeature.properties["numberOfClusters"] != null && typeof inputFeature.properties["numberOfClusters"] == 'number') {
